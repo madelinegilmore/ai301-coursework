@@ -55,23 +55,22 @@ happened; these entries are the toolkit's own timeline.
 All four entries are graded. Keep every heading below, and fill each
 one in the week it belongs to.
 
-**Unit 5: [one line on the tool work]**
+**Unit 9: Refined my issue-scout profile and clarified the grading workflow**
 
-[2-4 sentences: what you built (the scout, your strategy), what broke
-or fell short, what changed because of it.]
+I used Claude Code to refine my issue-scout fit profile around my Python and Go experience, my goal of improving at frontend work, and my preference for smaller tasks. The grading workflow initially left the expected location for `scan-output.md` unclear, so I confirmed that it belongs in the issue-scout skill directory and will put the grading read-out there after grading my picks. This clarified how I’ll use the scout output in my issue-selection process.
 
-**Unit 6: [one line on the tool work]**
+**Unit 10: [one line on the tool work]**
 
 [2-4 sentences: the voice-guard, the repo-memory file. What broke or
 fell short, and what changed because of it. "Nothing broke" counts when
 it is true - say how you know.]
 
-**Unit 7: [one line on the tool work]**
+**Unit 11: [one line on the tool work]**
 
 [2-4 sentences: the ship-gate and your gate manifest. What it produced
 on your real branch, what fought you, what changed because of it.]
 
-**Unit 8: [one line on the tool work]**
+**Unit 12: [one line on the tool work]**
 
 [2-4 sentences: the PR-monitor and your playbook. What it read, what it
 drafted, what you did with the draft.]
