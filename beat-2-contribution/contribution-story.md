@@ -1,4 +1,4 @@
-# Contribution: [Issue Title]
+# Contribution: Theme: Retro
 
 Path: `beat-2-contribution/contribution-story.md`
 
@@ -8,10 +8,9 @@ format criteria grade exactly that. Your course repo link is the whole submissio
 files and no evidence uploads are part of Assignment 5.
 
 **Contribution Number:** [1]
-**Student:** [Student name]
-**GitHub Username:** [your GitHub username, exactly as it appears on your profile - no @, no
-profile URL. Your comments upstream are identified by this name.]
-**Issue:** [GitHub issue link]
+**Student:** Madeline Gilmore
+**GitHub Username:** madelinegilmore
+**Issue:** https://github.com/sidd190/Dimsee/issues/62
 **Pull Request:** [GitHub PR link, once opened]
 
 One repository, built across units 5 to 8, telling the whole story of your real
@@ -79,24 +78,18 @@ drafted, what you did with the draft.]
 
 ## Why I Chose This Issue
 
-[1-2 paragraphs in your own words: how you searched, what your scan
-surfaced, what your scout's verdict said, why this issue fits your
-profile, and what you hope to learn. If your scout's verdict on it
-was reject and you chose it anyway, say so here and say why; choosing
-against your own tool silently is what loses points. Close with an
-honest read of the tool itself: where the scout fell short on a real
-wild search and what you changed or would change, or what convinced
-you it held up. **Record the link to your claim comment in this section too.**
-Not claimed yet? Write `claim pending` and today's date where the link goes,
-and add the link the moment your claim lands.]
+My first scan on 2026-11-08 ran my search strategy across GitHub: good first issues in TypeScript, JavaScript, Swift, Python and Go, updated in a three-month window. That scan didn't turn up anything I wanted, so I browsed firstissue.dev and gave my scout three issues to grade directly: Dimsee #59 (a Terminal theme for the login form), Ocelot-Social #6616 (a warning for chat messages over 2000 characters), and masjid-board #9 (a Spanish translation). After I patched my rubric's scope check, I graded all three again. The scout accepted all three and ranked Dimsee first, with the difficulty note "straightforward" because the issue names the file to change (`frontend/src/components/AuthForm.css`) and the work is one bounded change. I'm working on Dimsee #62 instead of #59. It's the same task with a Retro theme instead of Terminal, with the same labels, acceptance criteria and file. The scout graded #59, not #62, so I rechecked by hand that #62 was open, unassigned, and had no comments or linked PRs before I claimed it.
+
+The issue fits me because I have three years of coding experience, mostly in Python and Go, and I want to get better at frontend development while keeping my first contribution small. A theme is pure CSS in one file plus one README row, and the repo's CONTRIBUTING.md calls themes "the easiest high-impact contribution." I hope to learn how to scope CSS so it doesn't leak into other themes, how to make a layout work on mobile widths and in error states, and how a real project's PR process works from claim to review. My honest read of the scout is that it held up on scope but missed things about the repos. It accepted masjid-board even though that repo was created the same day it was graded, because `maintainer-alive` counts commits and never checks how old the repo is or whether anyone uses it. `responds-to-issues` came back unclear on all three issues, because every recent issue in those repos was opened by a maintainer, so it couldn't tell me how fast they answer outsiders. Dimsee's owner also filed about 100 issues in one day, which the rubric can't tell apart from a project people actually use. Next I would add a repo age or adoption check and count how fast outside PRs get merged, which would have shown Dimsee merging a newcomer's PR in 24 minutes.
+
+**Claim comment:** https://github.com/sidd190/Dimsee/issues/62#issuecomment-6839843328
 
 **Toolkit**
 
-- Tool: issue-scout (your scout: your search strategy, your rubric),
-  and how you used it
-- What it produced: [the scan and its verdict on this issue, described]
-- Difficulties: [where it fell short, or "none met" if none did]
-- What changed: [what you patched or would update, or "nothing"]
+- Tool: issue-scout (my search strategy and my rubric). I ran a search scan on 2026-11-08, then used `issue-scout: grade <URL> <URL> <URL>` on three issues I found on firstissue.dev, and graded them again after the scope patch.
+- What it produced: accept verdicts for all three issues, each with a check-by-check JSON grade. Dimsee ranked first as the best fit, with the difficulty note "straightforward". `maintainer-alive`, `shipped-recently`, `scope-feasible` and `unclaimed` passed, and `responds-to-issues` came back unclear.
+- Difficulties: my old `scope-bounded` check rejected any issue with an open design question, which would reject most real issues. The rubric has no check for repo age or usage, so a repo created that day passed. `responds-to-issues` couldn't be graded when every recent issue was opened by the owner. My first regrade, run headless, couldn't read GitHub at all and graded nothing until I allowed read-only `gh` commands for that run. The scout graded #59, so I checked #62 by hand.
+- What changed: in step 3 I replaced `scope-bounded` with the `scope-feasible` check, which fails only issues that aren't one piece of work (tracker issues, codebase-wide checklists), and added a difficulty note (straightforward, moderate or ambitious) that never changes the verdict. I logged the change in `scan-notes.md`. I would still add a repo age or adoption check and count how fast outside PRs get merged.
 
 ---
 
