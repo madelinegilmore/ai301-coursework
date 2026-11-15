@@ -58,11 +58,9 @@ one in the week it belongs to.
 
 I used Claude Code to refine my issue-scout fit profile around my Python and Go experience, my goal of improving at frontend work, and my preference for smaller tasks. The grading workflow initially left the expected location for `scan-output.md` unclear, so I confirmed that it belongs in the issue-scout skill directory and will put the grading read-out there after grading my picks. This clarified how I’ll use the scout output in my issue-selection process.
 
-**Unit 10: [one line on the tool work]**
+**Unit 10: Installed the voice guard and wrote a repo-memory file for Dimsee**
 
-[2-4 sentences: the voice-guard, the repo-memory file. What broke or
-fell short, and what changed because of it. "Nothing broke" counts when
-it is true - say how you know.]
+I merged my three voice-guide copies into one file, added Upstream rules for claims, questions and pings, and installed the guard as a Claude Code hook; the wiring test was blocked on `gh issue comment --help`, which shows the hook fires before anything posts. The manual check then stopped my first claim draft on my own rule "No timeline promisses." because of a "within a week" line, so I took the date out and the revised claim passed the hook when I posted it on Dimsee #62. For the memory file, I found that Dimsee's CONTRIBUTING.md had gained a CI section since my first read (Node 22 and 24 checks must pass), so I reread it before writing `CLAUDE.local.md`. My one scoped orientation over `frontend/` showed that the mode-switch link's colors are inline styles in `AuthForm.jsx`, which a CSS-only theme can't change, so I noted it to mention in my PR rather than widen my scope.
 
 **Unit 11: [one line on the tool work]**
 
