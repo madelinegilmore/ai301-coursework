@@ -11,7 +11,7 @@ files and no evidence uploads are part of Assignment 5.
 **Student:** Madeline Gilmore
 **GitHub Username:** madelinegilmore
 **Issue:** https://github.com/sidd190/Dimsee/issues/62
-**Pull Request:** [GitHub PR link, once opened]
+**Pull Request:** https://github.com/sidd190/Dimsee/pull/126
 
 One repository, built across units 5 to 8, telling the whole story of your real
 contribution. Fill it as you work, not at the end — the sections below ask for evidence that
@@ -114,7 +114,7 @@ On `main` at `805e9f4`, nothing in `frontend/` or README.md mentions "retro". `d
 **Toolkit**
 
 - Tool: my repo-memory file (`CLAUDE.local.md` in my clone) and the one scoped orientation run behind it. I ran a read-only Claude Code agent over only `frontend/`, asking where theme styling lives, how `design` picks a theme, which classes a theme must cover, and where the tests are, then checked its line numbers against the source.
-- What it produced: a short map, distilled into my memory file. One CSS file to edit, the theme block line ranges, the three `@media` blocks to extend, the full class list for signin, signup, errors and OAuth, and the fact that the only frontend test checks the export.
+- What it produced: a short map, distilled into my memory file. One CSS file to edit, the theme block line ranges, the three `@media` blocks to extend, the full class list for signin, signup, errors and OAuth, and the fact that the only test touching AuthForm checks the export.
 - Difficulties: it found things the issue doesn't mention. The mode-switch link's colors are inline styles in `AuthForm.jsx` (lines 357–368), which a CSS-only theme can't change. A themed input background also overrides the error background, so error states need their own rules.
 - What changed: I added those two points to my plan as things to handle (error styles) and things to leave alone and mention in the PR (the inline link colors), instead of finding them halfway through the build.
 
@@ -199,7 +199,7 @@ Error inputs keep a visible red border and a readable background. Then add retro
 What I won't change:
 - **`AuthForm.jsx`**, including the inline `.switch-mode-link` colors. CONTRIBUTING's theme guide says themes need "no JavaScript changes", and the issue points to that guide, so I'll mention the link in the PR instead.
 - **The other themes and the base rules.**
-- **Tests.** I won't add any: the only frontend test checks the export and mocks the CSS, and CONTRIBUTING asks for a test only "where practical".
+- **Tests.** I won't add any: the only test that touches AuthForm (`exports.test.js`) checks the export and mocks the CSS, and CONTRIBUTING asks for a test only "where practical".
 - **Prettier.** I won't run it. `AuthForm.css` and README.md already fail `prettier --check` on `main`, so running it would reformat both whole files, and I'll match the existing style by hand.
 - **Version, CHANGELOG, and anything outside these two files.**
 
@@ -220,7 +220,13 @@ Risks and unknowns:
 - I haven't built the preview page yet. If `AuthProvider` needs more than an `apiUrl` to render the form without a backend (the OAuth status request is expected to fail and be caught), I'll record what I had to do here.
 - I can check desktop and narrow widths in one browser on macOS, not on real mobile devices.
 
-Deviations: none yet.
+Deviations (recorded 2026-11-15, while building):
+- Step 3: the `colorful` block actually ends at line 363, not 360, so the retro block starts after line 363.
+- Step 3: `.input-wrapper`, `.button-content`, `.oauth-buttons` and `.oauth-icon` got no retro rules. They only handle layout and sizing, and the base rules already work for the retro look.
+- Step 5: for `.auth-form *:focus-visible`, "check" became a change: I added a retro rule (a 1px dotted black outline) next to `colorful`'s, because the base 3px indigo outline didn't fit the theme.
+- Step 5: I only added mobile overrides to the first `@media (max-width: 480px)` block (form padding and title-bar margins). The `768px` block and the second `480px` block needed nothing, because the retro selectors (`.auth-container.retro .form-input` and so on) are more specific than the base mobile rules, and the theme already rendered correctly at a true 390px width. For `@media (prefers-contrast: high)`, "check" became a change: I added the retro selectors to its three selector lists, the way `minimal` is listed, because otherwise the retro styles would override the high-contrast colors.
+- Step 9: two commits instead of one, so each says what it does: `feat: add retro AuthForm theme` (the CSS) and `docs: list retro in the AuthForm design prop options` (README.md), using CONTRIBUTING's `feat:` and `docs:` prefixes.
+- Risk resolved: the preview works with `AuthProvider` given only an `apiUrl`. The auth and OAuth requests fail and are caught, and the form renders and validates normally.
 
 
 **Toolkit**
@@ -233,18 +239,20 @@ Deviations: none yet.
 
 ## Testing Strategy
 
-[What observable checks prove the fix: your reproduction steps re-run
-against the built change (before and after), and the repo's own test
-suite or checks with the outcome shown. "Tests pass" with nothing
-observable named is not a strategy.]
+The issue is a missing theme, so the proof is that the theme now exists, renders the way the issue asks, and breaks nothing else. I checked three things, before and after, and saved the full output in `test_evidence.md` in my clone.
+
+1. **My reproduction steps, re-run against the branch.** The same four `git grep` commands from Reproduction Process, pointed at `main` (`805e9f4`) and then at my branch (`af382d5`). Before: `git grep -n -i retro -- frontend README.md` printed nothing (exit 1), `AuthForm.css` had three theme blocks (`modern`, `minimal`, `colorful`), and README.md line 179 listed three options. After: "retro" has 35 matches, a fourth block `.auth-container.retro {` starts at `AuthForm.css:369`, and line 179 lists `'modern'`, `'minimal'`, `'colorful'`, `'retro'`. `AuthForm.jsx:195` is identical in both, which shows I made no JavaScript changes.
+2. **What the issue asks to see: signin, signup, error states, mobile.** I rendered the real `AuthForm` in headless Chrome from a local preview page, with `design="retro"`, before and after. Before, the form falls back to the base style: a grey rounded card on white with an almost unreadable white button label. After, it's a teal backdrop with a grey bevelled window and a navy title bar, in both modes. Submitting the empty form triggers AuthForm's own validation, and each input gets a visible red border with a dark-red message (for example "Username is required"). At a true 390px width the form fits with 16px padding. These are the screenshots for my PR.
+3. **The repo's own checks, from my ship manifest.** Run in a fresh shell on the branch: `npm run lint` (exit 0, no findings), `npm test -- --ci --runInBand` (5 suites, 44/44 tests pass, the same as on `main`), `npm run build` (exit 0, 13 files compiled), and `npm pack --dry-run --ignore-scripts` (exit 0). The package list includes `frontend/src/components/AuthForm.css` and `dist/frontend/components/AuthForm.css`, so the theme ships with the package.
+
+No new automated test. The two frontend tests (`exports.test.js` and `SetPasswordButton.test.js`) mock CSS, so Jest in this repo can't see a stylesheet. A test that only checks the CSS file contains `.auth-container.retro` would just repeat check 1. CONTRIBUTING asks for a test "where practical", and I'll say this in the PR. Not covered: real phones, and browsers other than Chrome on macOS. `npm run format` is excluded (see my manifest).
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
-
+- Tool: my ship manifest's checks, run the way the ship-gate runs them (a fresh login shell, `/bin/sh -c`, clone root, nothing activated); my repro commands, re-run with `git grep` at the `main` commit and the branch commit; and a local preview page (outside the repo) rendered and screenshotted with headless Chrome.
+- What it produced: `test_evidence.md` in my clone, with before and after repro output, the four checks' output (all exit 0, 44/44 tests), and six before/after screenshots in `pr-screenshots/`, both excluded from git.
+- Difficulties: the first phone-width screenshot looked broken, but Chrome on macOS won't make a window narrower than about 500px, so the 480px media rules never applied. A 390px iframe gave a true phone width. While writing the evidence I also found I had been calling `exports.test.js` "the only frontend test". There's a second one, `SetPasswordButton.test.js`. My point still held (neither can see CSS), but the wording was wrong in my plan, my story and my memory file.
+- What changed: the phone-width screenshots now come from the iframe page. I corrected the test wording everywhere to "the only test that touches AuthForm". The evidence names exact commits (`805e9f4` before, `af382d5` after), since my branch had been recommitted and its commit hashes changed.
 ---
 
 ## Implementation Notes
@@ -252,47 +260,53 @@ observable named is not a strategy.]
 [A running log, added to as you work. Date each entry. What you
 built, decisions you made when you made them, wrong turns included.]
 
-**[Date]**
+**2026-11-15: branch, preview page, before screenshots**
 
-[Entry]
+Updated local `main` from upstream (still `805e9f4`) and created `feat/retro-theme`, using CONTRIBUTING's `feat/short-description` naming. To see AuthForm without a backend, I built a preview page outside the repo that renders `<AuthProvider apiUrl=...><AuthForm design="retro" /></AuthProvider>` and takes screenshots with headless Chrome. The first attempt to bundle it with `npx esbuild` was blocked because it downloads a package, so Claude Code wrote a small local bundler that uses the clone's own Babel and `node_modules` instead. My first preview was blank because I imported `AuthProvider` as a named export when it's a default export. Importing from the package's `src/index.js`, the way users do, fixed it. The "before" screenshot of `design="retro"` shows the base fallback: a grey rounded card on a white page with an almost invisible white button label. Submitting the empty form showed the real validation errors with no backend.
 
-**[Date]**
+**2026-11-15: the retro theme**
 
-[Entry]
+Added the `.auth-container.retro` block after `colorful`, which ends at line 363, not 360 as my plan said. One decision came from reading the base CSS: the base error style recolors the border with `!important`, so if retro inputs used `border: none` (like `minimal` does) errors would lose their red outline. I kept a real 2px border on the inputs for the sunken bevel, so errors can still turn it red, and made error text dark red (`#800000`) so it's readable on the grey panel. My first phone-width screenshot looked broken, with the form overflowing, but that was my screenshot setup: Chrome on macOS won't make a window that narrow. Rendering the page in a 390px iframe gave a true phone width, and the theme fit. Only the first `480px` media block needed retro overrides. I also added retro to the high-contrast media rule, like `minimal`, so high-contrast mode still wins. The editor dropped a trailing space on an existing line, and I put it back so my diff has no unrelated whitespace changes.
+
+**2026-11-15: README, checks, commits**
+
+Added `'retro'` to the `design` row in README.md, keeping the table's column width the same. My repro command, `git grep -n -i retro -- frontend README.md`, went from no output to 35 matches. All four manifest checks passed in a fresh shell: `npm run lint`, `npm test -- --ci --runInBand` (44/44), `npm run build`, and `npm pack --dry-run --ignore-scripts`. I didn't add a test, as planned: the only test that touches AuthForm checks the export with CSS mocked, so a CSS-only theme has no behavior a Jest test here would catch. Committed as `feat: add retro AuthForm theme` and `docs: list retro in the AuthForm design prop options`. My plan said one commit, so I recorded the change under Deviations. Screenshots (before, plus after for signin, signup, signup errors and 390px signin errors) are saved locally for the PR. The switch-mode link still uses its inline blue and purple, which is hard to read on the grey panel. That's out of scope for a CSS theme and goes in my PR description.
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
+- Tool: Claude Code in my clone for the build, with my plan and `CLAUDE.local.md` as the reference. It wrote the CSS against my plan's class list, built the preview page, ran the checks and drafted these notes. I read the diff and the screenshots before each commit.
+- What it produced: two commits on `feat/retro-theme`: `feat: add retro AuthForm theme` (one CSS block plus small additions to the 480px, focus-visible and high-contrast rules) and `docs: list retro in the AuthForm design prop options`. Plus a local preview page in `~/Documents/GitHub/dimsee-preview/` where I can switch between all four themes, both modes and error states.
+- Difficulties: `npx esbuild` was blocked because it downloads a package, so the preview needed a small bundler built from the clone's own Babel. The first preview was blank because of a wrong import. The editor dropped a trailing space on a line I didn't mean to change. My first commits also carried a Claude co-author line, and I recommitted without it so my PR discloses AI use in my own words instead.
+- What changed: I recorded four plan deviations (insert point at line 363, only one 480px block needed, high contrast became a real change, two commits instead of one) in both `plan.md` and my Implementation Plan. I put the trailing space back so the diff has no unrelated changes. Next time I'd set up the preview before writing any CSS, so the "before" screenshots are ready from the start.
 
 ---
 
 ## Pull Request
 
-**PR Link:** [GitHub PR URL when opened]
+**PR Link:** https://github.com/sidd190/Dimsee/pull/126
 
-**PR Description:** [what the PR says; much of the content above
-adapts into it]
+**PR Description:** "feat: add retro AuthForm theme", opened 2026-11-15 from `feat/retro-theme` (`af382d5`, two commits) into `main`, following the repo's PR template (Summary, Type of change, Checklist). The Summary says:
+- The PR adds a 90s desktop-window `retro` theme, CSS only and scoped to `.auth-container.retro`, plus `'retro'` in the README's `design` options.
+- Errors stay readable, the theme is added to the `focus-visible` and high-contrast rules, and only the first 480px block needed overrides.
+- `git grep -i retro` found nothing on `main` at `805e9f4` and now finds the theme.
+- Build and package checks pass, and it explains why I didn't run `npm run format` (Prettier already flags 36 files on `main`, including both of mine).
+- It lists my changes from the plan (four layout classes needed no retro rules; two commits), notes the switch-mode link's inline colors that a theme can't change, and gives a short AI disclosure.
+
+It closes #62, type is `feat`, and the checklist shows `npm test` (44/44) and lint passing, the test item as N/A (CSS only, and the frontend tests mock CSS), the README updated, and screenshots. I uploaded screenshots of sign in, sign up, error states and the 390px phone width on GitHub after opening it.
 
 **Maintainer Feedback:**
 
-- [Date]: [feedback received, or "none yet"; silence is a normal
-  state and costs you nothing]
+- 2026-11-15: none yet. The only comment is from the CodeRabbit bot, saying it doesn't review draft PRs automatically.
 - [Date]: [how you addressed it]
 
-**Status:** [Awaiting review / Iterating / Merged / Closed. The
-status is a fact you record, never a grade: the PR is graded as
-opened.]
+**Status:** Awaiting review. I opened it as a draft, so it shows as a draft on GitHub until I mark it ready for review.
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
-
+- Tool: the ship-gate. I ran it by hand with `python3 ~/.claude/ship-gate/check_gate.py --branch --title "feat: add retro AuthForm theme" --body-file pr_draft.md`, and it also ran as a Claude Code hook when I opened the PR with `gh pr create`. Each run did my manifest's four checks (lint, tests, build, package contents), then my pr-precheck on the branch, `plan.md`, `test_evidence.md` and `pr_draft.md`.
+- What it produced: eight dated entries in `~/.claude/ship-gate/gate-log.md`. By hand: one stop, then three passes. Through the hook: two stops, then a pass that let the PR open. The repo checks passed on every run. My pr-precheck graded all seven checks pass on the final runs.
+- Difficulties: the first manual run stopped on repo-asks-met. CONTRIBUTING's PR process asks for before/after screenshots, and my draft had only "after" ones, because Claude Code had told me the before shot wasn't needed, after checking only the theme guide and the issue. When opening the PR, `gh pr create --web` was stopped because the browser skips both hooks. Then the hook stopped again because my description had no AI disclosure, and my voice guard stopped it on my own rule "I say which tool I used and what it helped with, every time". The voice notes also flagged smaller things: a `focus-visible` change I hadn't recorded as a deviation, and a broad "I reviewed and tested everything". The gate also can't check screenshots, since they live outside the diff.
+- What changed: I added the before screenshot, recorded the `focus-visible` change and the four unstyled layout classes as deviations in `plan.md` and my Implementation Plan, made the AI line specific, and opened the PR with `--title` and `--body-file` so both hooks could read it. My rubric didn't need changing, because every stop asked for something the repo or my own rules really ask for.
 ---
 
 ## Learnings and Reflections
