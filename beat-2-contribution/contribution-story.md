@@ -62,10 +62,9 @@ I used Claude Code to refine my issue-scout fit profile around my Python and Go 
 
 I merged my three voice-guide copies into one file, added Upstream rules for claims, questions and pings, and installed the guard as a Claude Code hook; the wiring test was blocked on `gh issue comment --help`, which shows the hook fires before anything posts. The manual check then stopped my first claim draft on my own rule "No timeline promisses." because of a "within a week" line, so I took the date out and the revised claim passed the hook when I posted it on Dimsee #62. For the memory file, I found that Dimsee's CONTRIBUTING.md had gained a CI section since my first read (Node 22 and 24 checks must pass), so I reread it before writing `CLAUDE.local.md`. My one scoped orientation over `frontend/` showed that the mode-switch link's colors are inline styles in `AuthForm.jsx`, which a CSS-only theme can't change, so I noted it to mention in my PR rather than widen my scope.
 
-**Unit 11: [one line on the tool work]**
+**Unit 11: Installed the ship-gate, wrote a manifest for Dimsee, and gated my PR through it**
 
-[2-4 sentences: the ship-gate and your gate manifest. What it produced
-on your real branch, what fought you, what changed because of it.]
+I wrote a ship manifest from Dimsee's CONTRIBUTING.md and CI file with four checks (`npm run lint`, `npm test -- --ci --runInBand`, `npm run build`, `npm pack --dry-run --ignore-scripts`), all passing on unchanged `main`, and excluded `npm run format` with a dated reason because Prettier already flags 36 files on `main`, including both files I change. On `feat/retro-theme` the four checks passed every run, but my pr-precheck first stopped the branch on repo-asks-met because CONTRIBUTING asks for before/after screenshots and my draft had only "after" ones. When I opened the PR, the hook stopped `gh pr create --web` (the browser skips both hooks) and then stopped a description with no AI disclosure. I added the before screenshot, recorded two plan deviations its voice notes caught, wrote a specific AI disclosure, and opened PR #126 with `--title` and `--body-file`; my rubric needed no changes, because every stop asked for something the repo or my own rules really ask for.
 
 **Unit 12: [one line on the tool work]**
 
