@@ -95,26 +95,28 @@ The issue fits me because I have three years of coding experience, mostly in Pyt
 
 **Problem Description**
 
-[In your own words, what is broken or missing?]
+Dimsee's `AuthForm` component ships three visual themes (`modern`, `minimal`, `colorful`), chosen with the `design` prop. Issue #62 asks for a fourth, `retro`, with "a retro 90s computing look". That theme doesn't exist yet, so nothing is broken: a feature is missing.
 
 **Expected Behavior**
 
-[What should happen?]
+`<AuthForm design="retro" />` shows a 90s-computing look. All of its styles are scoped under `.auth-container.retro` in `frontend/src/components/AuthForm.css`, so they can't leak into other themes. It works in signin and signup mode, in error states, and on mobile widths, and the README's `design` prop table lists `retro`.
 
 **Current Behavior**
 
-[What actually happens?]
+On `main` at `805e9f4`, nothing in `frontend/` or README.md mentions "retro". `design="retro"` would put the class `retro` on the container, but no CSS targets `.auth-container.retro`, so the form would fall back to the shared base styles. The README's `design` options are `'modern'`, `'minimal'` and `'colorful'`.
 
 **Affected Components**
 
-[Which parts of the codebase are involved?]
+- `frontend/src/components/AuthForm.css`: the only stylesheet, where each theme is a scoped block and the mobile rules live in `@media` blocks.
+- `README.md`: the `design` row of the AuthForm props table (line 179).
+- `frontend/src/components/AuthForm.jsx`: reads `design` at line 195. It needs no change, but it decides which markup the theme has to style.
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
+- Tool: my repo-memory file (`CLAUDE.local.md` in my clone) and the one scoped orientation run behind it. I ran a read-only Claude Code agent over only `frontend/`, asking where theme styling lives, how `design` picks a theme, which classes a theme must cover, and where the tests are, then checked its line numbers against the source.
+- What it produced: a short map, distilled into my memory file. One CSS file to edit, the theme block line ranges, the three `@media` blocks to extend, the full class list for signin, signup, errors and OAuth, and the fact that the only frontend test checks the export.
+- Difficulties: it found things the issue doesn't mention. The mode-switch link's colors are inline styles in `AuthForm.jsx` (lines 357–368), which a CSS-only theme can't change. A themed input background also overrides the error background, so error states need their own rules.
+- What changed: I added those two points to my plan as things to handle (error styles) and things to leave alone and mention in the PR (the inline link colors), instead of finding them halfway through the build.
 
 ---
 
@@ -122,31 +124,53 @@ The issue fits me because I have three years of coding experience, mostly in Pyt
 
 **Environment Setup**
 
-[What a stranger would need to stand this up: your operating system,
-the relevant versions (language, runtime, package manager, the project
-itself), and how you set the project up. Then the challenges you faced
-and how you solved them, or that none came up.]
+- OS: macOS 26.6.2
+- Node v22.14.0, npm 11.2.0
+- Dimsee 0.6.9 (from `package.json`; the repo has no GitHub release published)
+- Build: upstream `main` at commit `805e9f4` (2026-11-15, "fix: set sameSite on auth cookies and set each cookie once (#110)")
+- Setup: I forked the repo, cloned my fork, and added `sidd190/Dimsee` as `upstream`. A stranger can run `git clone https://github.com/sidd190/Dimsee.git && cd Dimsee && git checkout 805e9f4`. I also ran `HUSKY=0 npm ci`, `npm run lint`, `npm test -- --ci --runInBand` and `npm run build` to confirm the project works before changing anything: lint was clean, 44/44 tests passed, and the build succeeded. None of those are needed to see this issue, and no MongoDB is needed.
+
+Challenges: this issue asks for a new feature, so there is no error to trigger. Reproducing it means showing the Retro theme is still missing on current `main`. My shell's `grep` is wrapped by another tool, which gave noisy output and missed one pattern, so I switched to `git grep` pinned to the commit. That gives the same output on any machine.
 
 **Steps to Reproduce**
 
-1. [Step 1]
-2. [Step 2]
-3. [Observed result]
+1. Clone the repo and check out `805e9f4` (command above).
+2. From the clone root, run:
+   ```
+   git grep -n -i retro 805e9f4 -- frontend README.md
+   git grep -nE '^\.auth-container\.[a-z]+ *\{' 805e9f4 -- frontend/src/components/AuthForm.css
+   git grep -n -F 'auth-container ${design}' 805e9f4 -- frontend/src/components/AuthForm.jsx
+   git grep -n -F 'The visual theme of the form' 805e9f4 -- README.md
+   ```
+3. Observed result: nothing in `frontend/` or README.md mentions "retro" (no output, exit 1). The only theme blocks are `modern`, `minimal` and `colorful`. `AuthForm.jsx:195` puts `design` straight into the class name, and the README's `design` options don't include `retro`. The issue expects `.auth-container.retro` in `AuthForm.css` and `retro` in the README table, and neither exists.
 
 **Reproduction Evidence**
 
-- **Commit showing reproduction:** [link to commit in your fork]
-- **Screenshots/logs:** [if applicable]
-- **My findings:** [what you discovered during reproduction; an
-  honest, evidenced cannot-reproduce that led you to re-pick or ask
-  the maintainer belongs here and costs you nothing]
+- **Commit showing reproduction:** none (no changes are needed to show a missing feature; the evidence is pinned to upstream commit `805e9f4`)
+- **Screenshots/logs:** output excerpt from the commands above:
+  ```
+  $ git grep -n -i retro 805e9f4 -- frontend README.md
+  (no output, exit 1)
+
+  $ git grep -nE '^\.auth-container\.[a-z]+ *\{' 805e9f4 -- frontend/src/components/AuthForm.css
+  805e9f4:frontend/src/components/AuthForm.css:26:.auth-container.modern {
+  805e9f4:frontend/src/components/AuthForm.css:161:.auth-container.minimal {
+  805e9f4:frontend/src/components/AuthForm.css:267:.auth-container.colorful {
+
+  $ git grep -n -F 'auth-container ${design}' 805e9f4 -- frontend/src/components/AuthForm.jsx
+  805e9f4:frontend/src/components/AuthForm.jsx:195:    <div className={`auth-container ${design} ${className}`}>
+
+  $ git grep -n -F 'The visual theme of the form' 805e9f4 -- README.md
+  805e9f4:README.md:179:| `design`      | `string`   | `'modern'`                   | The visual theme of the form. Options: `'modern'`, `'minimal'`, `'colorful'`.                             |
+  ```
+- **My findings:** reproduced. The Retro theme does not exist on `main` at `805e9f4`. Because `AuthForm.jsx` has no list of allowed `design` values, reading line 195 shows that `design="retro"` would add the class `retro` with no CSS behind it, so the form would fall back to the shared base styles. I did not render the component to confirm this; a before screenshot of that fallback will go in my PR. The owner (sidd190) already replied to my claim, "Welcome! Feel free to go ahead and raise a PR for this!", and assigned me.
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
+- Tool: repro-check, run as `repro-check: grade my claim comment in claim-draft.md and my repro report in repro-draft.md for issue https://github.com/sidd190/Dimsee/issues/62`, with read-only `gh` access allowed for the run so it could check the issue and repo live.
+- What it produced: an accept verdict. All four required checks passed (env-recorded, steps-followable, behavior-matches, ai-disclosure), and it checked my commit, version and line numbers against the live repo. The preferred claim-specific check failed because my posted claim said "current main" instead of naming a version or commit, and the voice pass flagged the same thing under my rule "Name the version and the behavior".
+- Difficulties: it caught two honesty problems in my first draft. I had collapsed the spacing in the `git grep` output, so it wasn't really raw output, and I wrote that `design="retro"` "renders" a class when I had only read the code, not rendered it. My rubric's structure doesn't fit a feature request well either: "reproduce" here means "show it's missing", so the report has to say so up front.
+- What changed: I pasted the raw output and changed "renders" to "would render (I did not render the component)". The claim is already posted, so I can't fix its missing version, but the repro report pins `805e9f4`. Next time my claim will name the commit or version it was written against.
 
 ---
 
@@ -154,30 +178,57 @@ and how you solved them, or that none came up.]
 
 **Analysis**
 
-[Your analysis of the root cause: what is causing the issue, traced
-to the files and functions involved.]
+The theme is missing because nobody has written it, not because of a bug. `AuthForm.jsx:195` renders `` <div className={`auth-container ${design} ${className}`}> ``, and `design` has no list of allowed values, so any value becomes a class name. Each theme is just a CSS block scoped to `.auth-container.<name>` in `frontend/src/components/AuthForm.css` (modern at lines 26–152, minimal at 161–258, colorful at 267–360). On top of the base rules that apply to every theme, a theme overrides the form, header, inputs, buttons, OAuth buttons and separator. Mobile rules live in `@media (max-width: 768px)` (line 558) and two `@media (max-width: 480px)` blocks (lines 583 and 740). With no `.auth-container.retro` block, `design="retro"` matches nothing and falls back to the base styles. The README's `design` row (line 179) lists only the three existing themes.
+
+Two details shape the fix. First, error states: the base `.form-input.error` border uses `!important`, but a theme's `.form-input` background is more specific than the base error background, so a theme has to style `.form-input.error` and `.error-message` itself to keep errors readable. Second, the "Already have an account? / Don't have an account?" link (`.switch-mode-link`) gets its colors from inline styles in `AuthForm.jsx` (lines 357–368), which CSS can't override without `!important`.
 
 **Proposed Solution**
 
-[High-level description of your fix approach, and what you are
-deliberately NOT changing.]
+Add one CSS block, `.auth-container.retro`, to `AuthForm.css` after the `colorful` block, with every rule scoped to that class. The look is a 90s desktop window:
+- a teal backdrop
+- a light grey panel with square corners and bevelled 2px borders (light on the top and left, dark on the bottom and right)
+- a navy title-bar header with white text
+- a plain system font stack
+- inset bevelled inputs
+- a raised button that looks pressed on `:active`
+- a dotted focus outline
+- no gradients or rounded corners
+
+Error inputs keep a visible red border and a readable background. Then add retro overrides to the existing mobile `@media` blocks, and add `'retro'` to the `design` row in README.md.
+
+What I won't change:
+- **`AuthForm.jsx`**, including the inline `.switch-mode-link` colors. CONTRIBUTING's theme guide says themes need "no JavaScript changes", and the issue points to that guide, so I'll mention the link in the PR instead.
+- **The other themes and the base rules.**
+- **Tests.** I won't add any: the only frontend test checks the export and mocks the CSS, and CONTRIBUTING asks for a test only "where practical".
+- **Prettier.** I won't run it. `AuthForm.css` and README.md already fail `prettier --check` on `main`, so running it would reformat both whole files, and I'll match the existing style by hand.
+- **Version, CHANGELOG, and anything outside these two files.**
 
 **Implementation Plan**
 
-1. [Modify file X to do Y]
-2. [Add or change Z]
-3. [Update tests]
+1. Update local `main` from upstream and create `feat/retro-theme`.
+2. Take a "before" screenshot of `design="retro"` falling back to the base styles, using a local preview page that renders `<AuthProvider><AuthForm design="retro" /></AuthProvider>`. The preview stays out of the repo and out of my commits.
+3. In `AuthForm.css`, add the `.auth-container.retro` block after the `colorful` block (after line 360). It covers `.auth-form`, `.form-header`, `.form-title`, `.form-subtitle`, `.input-group`, `.input-wrapper`, `.form-input` (`:focus`, `::placeholder`), `.submit-button` (`:hover`, `:active`, `:disabled`), `.button-content`, `.loading-spinner`, `.oauth-buttons`, `.oauth-button` (`.google`, `.github`), `.oauth-icon` and `.separator`.
+4. In the same block, style `.form-input.error`, `.form-input.error:focus` and `.error-message` so errors stay visible on the grey panel.
+5. Add retro overrides inside the `@media (max-width: 768px)` block and both `@media (max-width: 480px)` blocks, then check `.auth-form *:focus-visible` and `@media (prefers-contrast: high)`.
+6. In README.md line 179, add `'retro'` to the `design` options, matching the row's existing formatting.
+7. Check it in the preview: signin, signup, submitting an empty form in each mode (client-side validation shows the error states without a backend), and a width of 480px or less. The observable difference: before, `design="retro"` shows the base dark form; after, it shows the grey bevelled panel with the navy title bar, and error inputs keep a visible red border with readable `.error-message` text. Rerunning my repro command `git grep -n -i retro -- frontend README.md` goes from no output to matches in `AuthForm.css` and README.md. Take "after" screenshots of both modes.
+8. Run my ship manifest's checks: `npm run lint`, `npm test -- --ci --runInBand`, `npm run build` and `npm pack --dry-run --ignore-scripts`. Confirm `git diff --stat` shows only `AuthForm.css` and README.md.
+9. Commit as `feat: add retro AuthForm theme`, push to my fork, and open a PR using the repo's template. It will include `Closes #62`, type `feat`, the checklist, before and after screenshots, a note about the inline switch-link colors, and an AI disclosure in my own words.
 
-[Record deviations here as they happen: what changed mid-build and
-why. A recorded deviation is honest work; silent drift is not.]
+Risks and unknowns:
+- The exact look is my interpretation of "a retro 90s computing look". The issue doesn't specify colors, so the maintainer may ask for a different palette in review.
+- I haven't built the preview page yet. If `AuthProvider` needs more than an `apiUrl` to render the form without a backend (the OAuth status request is expected to fail and be caught), I'll record what I had to do here.
+- I can check desktop and narrow widths in one browser on macOS, not on real mobile devices.
+
+Deviations: none yet.
+
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
-
+- Tool: plan-check, run from my clone as `plan-check: grade my plan in plan.md and draft comment in plan-comment.md for issue https://github.com/sidd190/Dimsee/issues/62`, with read-only `gh` and `git grep` access for the run. I ran it twice.
+- What it produced: accept both times, with all five required checks passing (cause-grounded, bounded-scope, executable, decisive-test, thread-and-policy) and the preferred honest-unknowns check passing too. It checked my line numbers against `main` at `805e9f4` and confirmed the owner's "Feel free to go ahead and raise a PR" was the only direction in the thread.
+- Difficulties: the first run found that my `plan.md` had picked up the empty Testing Strategy template from my story, and that the voice-guide check didn't run, because the link points outside the skill folder and the run couldn't read it. The skill's procedure also has no step for a real issue with no posted repro comment, so it graded cause-grounded from the repro quoted in my plan plus its own `git grep` check. It couldn't run `prettier --check` itself, so it flagged my Prettier claim as unverified (I had run that check earlier: both files fail on `main`).
+- What changed: before grading I added a Risks and unknowns list and a concrete before/after to step 7, so the test names what changes on screen and in `git grep`. After grading I trimmed the stray template from `plan.md`, changed "can't restyle it" to "can't restyle it without `!important`", fixed a claim that the issue (not just CONTRIBUTING) says "no JavaScript", and changed "will pass lint and test" to "I'll run them before opening it". For the second run I gave it access to my voice-guard folder so the voice check ran. I would add a no-posted-repro case to plan-check's `procedure.md`.
 ---
 
 ## Testing Strategy
