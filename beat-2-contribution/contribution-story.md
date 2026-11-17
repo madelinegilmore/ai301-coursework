@@ -227,6 +227,15 @@ Deviations (recorded 2026-11-15, while building):
 - Step 9: two commits instead of one, so each says what it does: `feat: add retro AuthForm theme` (the CSS) and `docs: list retro in the AuthForm design prop options` (README.md), using CONTRIBUTING's `feat:` and `docs:` prefixes.
 - Risk resolved: the preview works with `AuthProvider` given only an `apiUrl`. The auth and OAuth requests fail and are caught, and the form renders and validates normally.
 
+Review round 1 (2026-11-16, from the owner's comment and CodeRabbit's review on PR #126):
+- Redesign: the owner asked whether the theme looked good enough and to polish it with more design. I replaced the 90s desktop window with a front-on close-up of a beige CRT monitor on a dark teal desk. The container draws the frame (with a strip, button and power light in the chin) and a hatched bezel at a fixed size, and the form is the glass, so sign in and sign up use the same computer and only the screen changes. Tall pages scroll inside the glass. On-screen text uses VT323 with a blinking cursor, and sign in gets a larger title because it has room to spare. This replaces the window-specific steps in my original plan (title bar, bevels, the default-button frame).
+- Font: VT323 is added to the existing Google Fonts line at the top of `AuthForm.css`, so every page using AuthForm loads one more small font. I said so in the PR.
+- OAuth: the owner asked that every theme style the Google and GitHub buttons. They're styled to match the screen, and sign up with OAuth fits without scrolling (measured: content height equals the glass height). I added a "Show OAuth" option to my local preview, which fakes the `/oauth-status` reply.
+- Placeholder: `#808080` on white was 3.95:1. The new placeholder is `#4a6070` on the light fields (5.8:1).
+- High contrast: browsers only match `prefers-contrast: more`, so the retro selectors I had added to the existing `high` block never applied. Retro now has its own `more` block, and the `high` block is exactly as it is on `main`. Fixing `high` for the other themes is a separate change.
+- Switch link: its inline colors in `AuthForm.jsx` would be 1.4:1 on the glass. The theme puts a light label behind it with an inset shadow (3.2:1, and 5.6:1 for "Sign In"). Fully fixing it needs a JSX change, which I'm asking the owner about. Aria labels are #113, as the owner said.
+- Commits for this round: `d4943a9 build: load the VT323 pixel font with the other AuthForm fonts`, `d3e16b1 feat: redesign the retro theme as a close-up of a beige CRT monitor`, `4951b46 fix: move retro high-contrast styles to prefers-contrast: more`.
+
 
 **Toolkit**
 
@@ -270,6 +279,10 @@ Added the `.auth-container.retro` block after `colorful`, which ends at line 363
 **2026-11-15: README, checks, commits**
 
 Added `'retro'` to the `design` row in README.md, keeping the table's column width the same. My repro command, `git grep -n -i retro -- frontend README.md`, went from no output to 35 matches. All four manifest checks passed in a fresh shell: `npm run lint`, `npm test -- --ci --runInBand` (44/44), `npm run build`, and `npm pack --dry-run --ignore-scripts`. I didn't add a test, as planned: the only test that touches AuthForm checks the export with CSS mocked, so a CSS-only theme has no behavior a Jest test here would catch. Committed as `feat: add retro AuthForm theme` and `docs: list retro in the AuthForm design prop options`. My plan said one commit, so I recorded the change under Deviations. Screenshots (before, plus after for signin, signup, signup errors and 390px signin errors) are saved locally for the PR. The switch-mode link still uses its inline blue and purple, which is hard to read on the grey panel. That's out of scope for a CSS theme and goes in my PR description.
+
+**2026-11-16: review round 1, redesigned as a CRT close-up**
+
+The owner thanked me and asked for three things: address CodeRabbit's comments, make sure the Google and GitHub buttons are styled, and polish the design so it looks good enough to ship. I tried a few directions in the preview (a title bar and taskbar, a desk scene, an oblique beige PC) before settling on a front-on close-up of a beige CRT. The frame and bezel are drawn by the container at a fixed size and the form is the glass, so switching between sign in and sign up only changes the screen. I tightened the on-screen sizes until sign up with OAuth fit without scrolling, and I checked that by measuring the content height against the glass, not by eye. CodeRabbit's three findings: the placeholder is now 5.8:1, retro moved to a working `prefers-contrast: more` block, and the inline switch-link colors get a light label (3.2:1), with the JSX question going to the owner. Three commits: the font, the redesign, and the contrast fix. Lint, 44/44 tests, build and pack all pass.
 
 **Toolkit**
 
