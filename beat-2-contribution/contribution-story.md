@@ -228,7 +228,7 @@ Deviations (recorded 2026-11-15, while building):
 - Risk resolved: the preview works with `AuthProvider` given only an `apiUrl`. The auth and OAuth requests fail and are caught, and the form renders and validates normally.
 
 Review round 1 (2026-11-16, from the owner's comment and CodeRabbit's review on PR #126):
-- Redesign: the owner asked whether the theme looked good enough and to polish it with more design. I replaced the 90s desktop window with a front-on close-up of a beige CRT monitor on a dark teal desk. The container draws the frame (with a strip, button and power light in the chin) and a hatched bezel at a fixed size, and the form is the glass, so sign in and sign up use the same computer and only the screen changes. Tall pages scroll inside the glass. On-screen text uses VT323 with a blinking cursor, and sign in gets a larger title because it has room to spare. This replaces the window-specific steps in my original plan (title bar, bevels, the default-button frame).
+- Redesign: the owner asked whether the theme looked good enough and to polish it with more design. I replaced the 90s desktop window with a front-on close-up of a beige CRT monitor on a dark teal desk. The container draws the frame (with a strip, button and power light in the chin) and a hatched bezel at a fixed size, and the form is the glass, so sign in and sign up use the same computer and only the screen changes. Tall pages scroll inside the glass. On-screen text uses VT323, and sign in gets a larger title because it has room to spare. This replaces the window-specific steps in my original plan (title bar, bevels, the default-button frame).
 - Font: VT323 is added to the existing Google Fonts line at the top of `AuthForm.css`, so every page using AuthForm loads one more small font. I said so in the PR.
 - OAuth: the owner asked that every theme style the Google and GitHub buttons. They're styled to match the screen, and sign up with OAuth fits without scrolling (measured: content height equals the glass height). I added a "Show OAuth" option to my local preview, which fakes the `/oauth-status` reply.
 - Placeholder: `#808080` on white was 3.95:1. The new placeholder is `#4a6070` on the light fields (5.8:1).
@@ -308,10 +308,12 @@ It closes #62, type is `feat`, and the checklist shows `npm test` (44/44) and li
 
 **Maintainer Feedback:**
 
-- 2026-11-15: none yet. The only comment is from the CodeRabbit bot, saying it doesn't review draft PRs automatically.
-- [Date]: [how you addressed it]
+- 2026-11-15 to 2026-11-16 (round 1): CodeRabbit flagged three contrast issues: the switch-mode link's inline `#667eea` at about 2:1, the `#808080` placeholder at 3.95:1, and retro rules sitting in `prefers-contrast: high`, which browsers don't match. Then the owner (sidd190) asked me to address CodeRabbit's comments, style the Google and GitHub buttons in the theme, and polish the design so it's good enough to ship. Aria labels belong to #113.
+- 2026-11-17: I redesigned the theme as a beige CRT monitor close-up (`d3e16b1`), loaded VT323 (`d4943a9`), styled the OAuth buttons, raised the placeholder to 5.8:1 and moved retro to its own `prefers-contrast: more` block (`4951b46`). Then I updated the PR description and screenshots, and replied on the thread point by point, asking whether the owner prefers the new design.
+- 2026-11-17 (round 2): CodeRabbit re-reviewed the redesign and flagged three more issues: the blinking cursor ignored reduced motion, the phone monitor could be taller than a short window, and focused and error inputs lost the high-contrast colors.
+- 2026-11-17: I removed the blinking cursor, capped the phone monitor at the window height, and added the focused and error inputs to the `more` block (`1881d79`, `36dde0e`). In the same commit I fully fixed the switch link without changing `AuthForm.jsx`: the theme overrides its inline colors with `!important` (13.4:1 and 12.7:1). My reply on the thread covers these too.
 
-**Status:** Awaiting review. I opened it as a draft, so it shows as a draft on GitHub until I mark it ready for review.
+**Status:** Awaiting review. Every point from both rounds is answered and pushed, and I'm waiting on the owner's response to the redesign.
 
 **Toolkit**
 
