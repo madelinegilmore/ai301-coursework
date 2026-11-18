@@ -113,7 +113,7 @@ On `main` at `805e9f4`, nothing in `frontend/` or README.md mentions "retro". `d
 
 - Tool: my repo-memory file (`CLAUDE.local.md` in my clone) and the one scoped orientation run behind it. I ran a read-only Claude Code agent over only `frontend/`, asking where theme styling lives, how `design` picks a theme, which classes a theme must cover, and where the tests are, then checked its line numbers against the source.
 - What it produced: a short map, distilled into my memory file. One CSS file to edit, the theme block line ranges, the three `@media` blocks to extend, the full class list for signin, signup, errors and OAuth, and the fact that the only test touching AuthForm checks the export.
-- Difficulties: it found things the issue doesn't mention. The mode-switch link's colors are inline styles in `AuthForm.jsx` (lines 357–368), which a CSS-only theme can't change. A themed input background also overrides the error background, so error states need their own rules.
+- Difficulties: it found things the issue doesn't mention. The mode-switch link's colors are inline styles in `AuthForm.jsx` (lines 357–368), so a normal theme rule cannot override them; I initially treated that as out of scope. A themed input background also overrides the error background, so error states need their own rules.
 - What changed: I added error styles to the plan. I initially treated the inline link colors as out of scope, but later confirmed the retro selector could override their inline styles with `!important`; commit `36dde0e` fixes the contrast without changing `AuthForm.jsx`.
 
 ---
