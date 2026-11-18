@@ -66,10 +66,9 @@ I merged my three voice-guide copies into one file, added Upstream rules for cla
 
 I wrote a ship manifest from Dimsee's CONTRIBUTING.md and CI file with four checks (`npm run lint`, `npm test -- --ci --runInBand`, `npm run build`, `npm pack --dry-run --ignore-scripts`), all passing on unchanged `main`, and excluded `npm run format` with a dated reason because Prettier already flags 36 files on `main`, including both files I change. On `feat/retro-theme` the four checks passed every run, but my pr-precheck first stopped the branch on repo-asks-met because CONTRIBUTING asks for before/after screenshots and my draft had only "after" ones. When I opened the PR, the hook stopped `gh pr create --web` (the browser skips both hooks) and then stopped a description with no AI disclosure. I added the before screenshot, recorded two plan deviations its voice notes caught, wrote a specific AI disclosure, and opened PR #126 with `--title` and `--body-file`; my rubric needed no changes, because every stop asked for something the repo or my own rules really ask for.
 
-**Unit 12: [one line on the tool work]**
+**Unit 12: Wrote my playbook, ran the PR-monitor on #126, and rewrote its draft into my reply**
 
-[2-4 sentences: the PR-monitor and your playbook. What it read, what it
-drafted, what you did with the draft.]
+I wrote a playbook with response rules (answer each point first and cite the commit, check every CodeRabbit finding against the code, never promise a date), a 4-day staleness threshold based on how fast Dimsee answered its last five outside PRs (0.2 to 49 hours), one-nudge etiquette, and walk-away criteria. On 2026-11-16 the monitor read PR #126 as feedback-in and drafted a reply covering CodeRabbit's three findings and the owner's points. Its notes told me to hold it until the fixes were pushed, because the draft was in future tense, and to verify the contrast figures it had calculated itself. A later run that night correctly said nothing-new. I didn't post the draft as it was. I did the work first (the CRT redesign and the contrast fixes), rewrote the reply in `my-reply.md` to report finished commits instead of promises, and dropped its question about changing `AuthForm.jsx` once I fixed the switch link in the theme with `!important`. My voice guard passed it, and I posted it on 2026-11-17.
 
 ---
 
@@ -265,9 +264,6 @@ No new automated test. The two frontend tests (`exports.test.js` and `SetPasswor
 
 ## Implementation Notes
 
-[A running log, added to as you work. Date each entry. What you
-built, decisions you made when you made them, wrong turns included.]
-
 **2026-11-15: branch, preview page, before screenshots**
 
 Updated local `main` from upstream (still `805e9f4`) and created `feat/retro-theme`, using CONTRIBUTING's `feat/short-description` naming. To see AuthForm without a backend, I built a preview page outside the repo that renders `<AuthProvider apiUrl=...><AuthForm design="retro" /></AuthProvider>` and takes screenshots with headless Chrome. The first attempt to bundle it with `npx esbuild` was blocked because it downloads a package, so Claude Code wrote a small local bundler that uses the clone's own Babel and `node_modules` instead. My first preview was blank because I imported `AuthProvider` as a named export when it's a default export. Importing from the package's `src/index.js`, the way users do, fixed it. The "before" screenshot of `design="retro"` shows the base fallback: a grey rounded card on a white page with an almost invisible white button label. Submitting the empty form showed the real validation errors with no backend.
@@ -283,6 +279,14 @@ Added `'retro'` to the `design` row in README.md, keeping the table's column wid
 **2026-11-16: review round 1, redesigned as a CRT close-up**
 
 The owner thanked me and asked for three things: address CodeRabbit's comments, make sure the Google and GitHub buttons are styled, and polish the design so it looks good enough to ship. I tried a few directions in the preview (a title bar and taskbar, a desk scene, an oblique beige PC) before settling on a front-on close-up of a beige CRT. The frame and bezel are drawn by the container at a fixed size and the form is the glass, so switching between sign in and sign up only changes the screen. I tightened the on-screen sizes until sign up with OAuth fit without scrolling, and I checked that by measuring the content height against the glass, not by eye. CodeRabbit's three findings: the placeholder is now 5.8:1, retro moved to a working `prefers-contrast: more` block, and the inline switch-link colors get a light label (3.2:1), with the JSX question going to the owner. Three commits: the font, the redesign, and the contrast fix. Lint, 44/44 tests, build and pack all pass.
+
+**2026-11-16: phone layout for the CRT**
+
+After pushing the redesign I checked it at phone width in the preview's 390px iframe. The glass was too short for sign in at full size, so in `1881d79` I made the monitor square on phones, with a thinner frame and chin, and shrank the title, inputs and buttons inside the 480px block until sign in fit on the glass. The `:has()` selector gives sign in (two inputs) a bigger title than sign up (three inputs), with no JSX change.
+
+**2026-11-17: CodeRabbit round 2, the switch link, and my reply**
+
+CodeRabbit's second review found three real problems in the redesign. The blinking cursor kept blinking with reduced motion on, because the repo's reduced-motion rule targets `*`, which doesn't select `::after`. My square phone monitor could be taller than a short window. And in `prefers-contrast: more`, focused and error inputs kept their light colors, because `.form-input:focus` and `.form-input.error` are more specific than my override. In `36dde0e` I removed the cursor instead of adding another motion rule, capped the phone monitor at `min(width, 100vh - 20px)`, and added the focus and error selectors to the `more` block. I also changed my mind about the switch link. I had planned to ask the owner whether I could change `AuthForm.jsx`, but CSS `!important` beats a normal inline style, and the repo's base error rule already uses it. So the retro rule now sets the link to `--glass-ink` and its "Sign In"/"Sign Up" part to `--ink` (13.4:1 and 12.7:1 on the label, up from 3.2:1), and the JSX stays untouched. Lint, 44/44 tests, build and pack passed again. I updated the PR description and screenshots from `pr_draft.md`, posted my reply from `my-reply.md`, and recorded both review rounds under Maintainer Feedback.
 
 **Toolkit**
 
@@ -306,12 +310,14 @@ The owner thanked me and asked for three things: address CodeRabbit's comments, 
 
 It closes #62, type is `feat`, and the checklist shows `npm test` (44/44) and lint passing, the test item as N/A (CSS only, and the frontend tests mock CSS), the README updated, and screenshots. I uploaded screenshots of sign in, sign up, error states and the 390px phone width on GitHub after opening it.
 
+On 2026-11-17, after review round 1, I rewrote the description for the CRT redesign. It now describes the monitor close-up, VT323, the OAuth styling, the `prefers-contrast: more` block, and the switch link fixed in the theme with `!important` (`AuthForm.jsx` unchanged). I also replaced the screenshots with new ones, including sign up with the Google and GitHub buttons.
+
 **Maintainer Feedback:**
 
 - 2026-11-15 to 2026-11-16 (round 1): CodeRabbit flagged three contrast issues: the switch-mode link's inline `#667eea` at about 2:1, the `#808080` placeholder at 3.95:1, and retro rules sitting in `prefers-contrast: high`, which browsers don't match. Then the owner (sidd190) asked me to address CodeRabbit's comments, style the Google and GitHub buttons in the theme, and polish the design so it's good enough to ship. Aria labels belong to #113.
-- 2026-11-17: I redesigned the theme as a beige CRT monitor close-up (`d3e16b1`), loaded VT323 (`d4943a9`), styled the OAuth buttons, raised the placeholder to 5.8:1 and moved retro to its own `prefers-contrast: more` block (`4951b46`). Then I updated the PR description and screenshots, and replied on the thread point by point, asking whether the owner prefers the new design.
+- 2026-11-16: I redesigned the theme as a beige CRT monitor close-up (`d3e16b1`), loaded VT323 (`d4943a9`), styled the OAuth buttons, raised the placeholder to 5.8:1, moved retro to its own `prefers-contrast: more` block (`4951b46`), and fit the monitor to phone widths (`1881d79`). On 2026-11-17 I updated the PR description and screenshots, and replied on the thread point by point, asking whether the owner prefers the new design.
 - 2026-11-17 (round 2): CodeRabbit re-reviewed the redesign and flagged three more issues: the blinking cursor ignored reduced motion, the phone monitor could be taller than a short window, and focused and error inputs lost the high-contrast colors.
-- 2026-11-17: I removed the blinking cursor, capped the phone monitor at the window height, and added the focused and error inputs to the `more` block (`1881d79`, `36dde0e`). In the same commit I fully fixed the switch link without changing `AuthForm.jsx`: the theme overrides its inline colors with `!important` (13.4:1 and 12.7:1). My reply on the thread covers these too.
+- 2026-11-17: In `36dde0e` I removed the blinking cursor, capped the phone monitor at the window height, and added the focused and error inputs to the `more` block. In the same commit I fully fixed the switch link without changing `AuthForm.jsx`: the theme overrides its inline colors with `!important` (13.4:1 and 12.7:1). My reply on the thread covers these too.
 
 **Status:** Awaiting review. Every point from both rounds is answered and pushed, and I'm waiting on the owner's response to the redesign.
 
@@ -327,25 +333,34 @@ It closes #62, type is `feat`, and the checklist shows `npm test` (44/44) and li
 
 **Technical Skills Gained**
 
-[What you learned technically, named concretely.]
+- **Scoping CSS so a theme can't leak.** Every rule sits under `.auth-container.retro`, and I learned to think in specificity: a theme's `.form-input` beats the base error background, `.form-input:focus` beats a media-query override with fewer classes, and `!important` beats an inline `style` attribute. That last point is how I fixed the switch link without touching `AuthForm.jsx`.
+- **Drawing with CSS alone.** The whole monitor is the container plus `::before` and `::after`: layered `linear-gradient` and `radial-gradient` backgrounds for the strip, button and power light, `repeating-linear-gradient` for the hatched bezel and scanlines, and CSS variables (`--mw`, `--mh`, `--b1`, `--chin`) so the same drawing scales down for phones. Decorative pseudo-elements have no text, so screen readers skip them.
+- **Accessibility media queries and contrast.** Browsers match `prefers-contrast: more`, not `high`, so a rule can look right and never apply. The repo's reduced-motion rule targets `*`, which doesn't reach `::after`. WCAG text needs 4.5:1, and I now calculate the ratio instead of judging it by eye (3.95:1 to 5.8:1 for the placeholder, 3.2:1 to 13.4:1 for the switch link).
+- **Testing a UI change honestly.** I learned to render the real component in headless Chrome from a preview page outside the repo, measure whether content fits instead of eyeballing it, and use a 390px iframe for phone width, because Chrome on macOS won't make a window that narrow.
+- **A real PR process.** That means branch naming and commit prefixes from CONTRIBUTING, a PR template, CI on two Node versions, a review bot, and keeping the description in sync with the code as it changes.
 
 **Challenges Overcome**
 
-[What was hard and how you solved it; point at the real events, the
-Toolkit blocks above are full of them.]
+- **"Good enough to ship" was a design call, not a bug.** My first theme met the issue, but the owner asked whether it looked good enough. I tried several directions in the preview (a title bar and taskbar, a desk scene, an oblique beige PC) before settling on the CRT close-up, and I asked in my reply whether he prefers it, instead of assuming.
+- **The switch link.** For two days I believed it needed a JSX change I wasn't allowed to make in a theme PR, so I added a light label behind it (only 3.2:1) and drafted a question to the owner. Rereading the base CSS, I saw the repo already uses `!important` for the error border, which meant a theme could override inline colors too. I fixed it in the theme (13.4:1), and the question was no longer needed.
+- **Review bot findings that were really right.** CodeRabbit's second round caught three things I had missed (motion, phone height, and focus and error contrast). I checked each against the code before changing anything, as my playbook says, and fixed all three in one commit.
+- **Gates that stopped me.** The ship-gate stopped my PR for a missing "before" screenshot that CONTRIBUTING asks for, and my voice guard stopped it for a vague AI disclosure. Both stops were right, so I fixed the PR instead of the rules.
+- **Phone screenshots that lied.** The first phone-width screenshot looked broken, but the problem was my setup, not the CSS. The iframe fixed it.
 
 **What I'd Do Differently Next Time**
 
-[Reflection on your process.]
+- **Ask about the design level before building.** The issue only said "a retro 90s computing look", and I built a full theme before learning the owner wanted something more polished, closer to the demo site. Next time I'd look at the existing themes on the demo and ask one question in my plan comment about how detailed it should be.
+- **Read the base CSS's own tricks before deciding something is out of scope.** The `!important` answer for the switch link was in the file the whole time. I would have saved a round of drafting if I'd checked how the base styles already handle inline and specific rules.
+- **Check accessibility media queries and pseudo-elements myself before pushing.** All six CodeRabbit findings were accessibility problems I could have caught with a short checklist: is the `prefers-contrast` value real, does reduced motion reach pseudo-elements, are focus and error states covered in every override block, and is the text 4.5:1.
+- **Set up the preview first.** Having it ready before writing CSS would have given me the "before" screenshot from the start and saved the ship-gate stop.
+- **Name the commit in my claim.** My repro-check flagged that my claim said "current main" instead of a version, and the claim was already posted.
 
 ---
 
 ## Resources Used
 
-[What actually helped, not a reading list. List things this story
-already shows you using: the doc you followed to set the environment
-up, the thread that explained the bug, the person who answered you.
-One real entry beats ten plausible ones.]
-
-- [Link to documentation that helped]
-- [Discussion, issue, or post that helped]
+- Dimsee's CONTRIBUTING.md, "Contributing a new theme" and PR process: https://github.com/sidd190/Dimsee/blob/main/CONTRIBUTING.md. I followed its theme steps (unique scoped class, README `design` row, no JavaScript), branch naming, commit prefixes, and its before/after screenshot ask, which the ship-gate held me to.
+- The owner's review on my PR: https://github.com/sidd190/Dimsee/pull/126#issuecomment-6910342695. sidd190 told me what a new theme needs (OAuth buttons styled, CodeRabbit addressed), that aria labels belong to #113, and to compare against the demo themes.
+- CodeRabbit's two reviews on my PR: https://github.com/sidd190/Dimsee/pull/126#pullrequestreview-5913441972 and https://github.com/sidd190/Dimsee/pull/126#pullrequestreview-5931633774. They explained `prefers-contrast: more` versus `high`, gave the contrast numbers for the placeholder and switch link, and showed why reduced motion didn't reach my `::after` cursor.
+- Dimsee's live demo, https://dimsee.netlify.app/, which the owner pointed me to for the level of design the existing themes have.
+- Issue #113 (aria labels), https://github.com/sidd190/Dimsee/issues/113, which told me what to leave out of my PR.
