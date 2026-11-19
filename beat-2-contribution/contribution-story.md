@@ -322,7 +322,7 @@ The PR description and my follow-up comment show the before behavior (no Retro C
 - **Drawing with CSS alone.** The whole monitor is the container plus `::before` and `::after`: layered `linear-gradient` and `radial-gradient` backgrounds for the strip, button and power light, `repeating-linear-gradient` for the hatched bezel and scanlines, and CSS variables (`--mw`, `--mh`, `--b1`, `--chin`) so the same drawing scales down for phones. Decorative pseudo-elements have no text, so screen readers skip them.
 - **Accessibility media queries and contrast.** Browsers match `prefers-contrast: more`, not `high`, so a rule can look right and never apply. The repo's reduced-motion rule targets `*`, which doesn't reach `::after`. WCAG text needs 4.5:1, and I now calculate the ratio instead of judging it by eye (3.95:1 to 5.8:1 for the placeholder, 3.2:1 to 13.4:1 for the switch link).
 - **Testing a UI change honestly.** I learned to render the real component in headless Chrome from a preview page outside the repo, measure whether content fits instead of eyeballing it, and use a 390px iframe for phone width, because Chrome on macOS won't make a window that narrow.
-- **A real PR process.** That means branch naming and commit prefixes from CONTRIBUTING, a PR template, CI on two Node versions, a review bot, and keeping the description in sync with the code as it changes.
+- **A real PR process.** That means branch naming and commit prefixes from CONTRIBUTING, a PR template, CONTRIBUTING's requirement that checks pass on Node 22 and 24 (which I ran locally, since no GitHub CI ran on my PR), a review bot, and keeping the description in sync with the code as it changes.
 
 **Challenges Overcome**
 
